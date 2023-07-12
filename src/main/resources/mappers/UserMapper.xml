@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeo.matzip.mappers.UserMapper">
+    <insert id="insertRegisterContactCode"
+            useGeneratedKeys="true"
+            keyColumn="index"
+            keyProperty="index"
+            parameterType="com.yeo.matzip.entities.RegisterContactCodeEntity">
+        insert into `matzip`.`register_contact_codes`(`contact`, `code`, `salt`, `created_at`, `expires_at`, `expired_flag`)
+        values (#{contact},
+                #{code},
+                #{salt},
+                ifnull(#{createdAt}, default(`created_at`)),
+                #{expiresAt},
+                ifnull(#{isExpired}, default(`expired_flag`)))
+    </insert>
+    <insert id="insertRecoverContactCode"
+            useGeneratedKeys="true"
+            keyColumn="index"
+            keyProperty="index"
+            parameterType="com.yeo.matzip.entities.RecoverContactCodeEntity">
+        insert into `matzip`.`recover_contact_codes`(`contact`, `code`, `salt`, `created_at`, `expires_at`, `expired_flag`)
+        values (#{contact},
+                #{code},
+                #{salt},
+                ifnull(#{createdAt}, default(`created_at`)),
+                #{expiresAt},
+                ifnull(#{isExpired}, default(`expired_flag`)))
+    </insert>
+    <insert id="insertRegisterEmailCode"
+            parameterType="com.yeo.matzip.entities.RegisterEmailCodeEntity">
+        insert into `matzip`.`register_email_codes`(`email`, `code`, `salt`, `created_at`,
+                                                    `expires_at`, `expired_flag`)
+        values (#{email},
+                #{code},
+                #{salt},
+                ifnull(#{createdAt}, default(`created_at`)),
+                #{expiresAt},
+                #{isExpired})
+    </insert>
+    <insert id="insertUser"
+            parameterType="com.yeo.matzip.entities.UserEntity">
+        INSERT INTO `matzip`.`users` (`email`, `password`, `nickname`, `contact`, `status`, `admin_flag`,
+                                      `registered_at`)
+            VALUE (#{email},
+                   #{password},
+                   #{nickname},
+                   #{contact},
+                   #{status},
+                   #{isAdmin},
+                   IFNULL(#{registeredAt}, DEFAULT(`registered_at`)))
+    </insert>
+    <select id="selectUserByContact"
+            resultType="com.yeo.matzip.entities.UserEntity">
+        select `email`         as `email`,
+               `password`      as `password`,
+               `nickname`      as `nickname`,
+               `contact`       as `contact`,
+               `status`        as `status`,
+               `admin_flag`    as `isAdmin`,
+               `registered_at` as `registerAt`
+        from `matzip`.`users`
+        where binary `contact` = #{contact}
+        limit 1
+
+    </select>
+    <select id="selectUserByEmail"
+            resultType="com.yeo.matzip.entities.UserEntity">
+        select `email`         as `email`,
+               `password`      as `password`,
+               `nickname`      as `nickname`,
+               `contact`       as `contact`,
+               `status`        as `status`,
+               `admin_flag`    as `isAdmin`,
+               `registered_at` as `registeredAt`
+        from `matzip`.`users`
+        where binary `email` = #{email}
+        limit 1
+    </select>
+    <select id="selectUserByNickName"
+            resultType="com.yeo.matzip.entities.UserEntity">
+        select `email`         as `email`,
+               `password`      as `password`,
+               `nickname`      as `nickname`,
+               `contact`       as `contact`,
+               `status`        as `status`,
+               `admin_flag`    as `isAdmin`,
+               `registered_at` as `registeredAt`
+        from `matzip`.`users`
+        where binary `nickname` = #{nickname}
+        limit 1
+
+    </select>
+
+    <!--    <select id="selectUserByContact"-->  <!-- 이메일 중복 인트로 확인방법-->
+    <!--            resultType="int">-->
+    <!--        select count(0) as `count`-->
+    <!--        from `matzip`.`users`-->
+    <!--    </select>-->
+
+    <select id="selectRegisterContactCodeByContactCodeSalt"
+            resultType="com.yeo.matzip.entities.RegisterContactCodeEntity">
+        select `index`        as `index`,
+               `contact`      as `contact`,
+               `code`         as `code`,
+               `salt`         as `salt`,
+               `created_at`   as `createdAt`,
+               `expires_at`   as `expiresAt`,
+               `expired_flag` as `isExpired`
+        from `matzip`.`register_contact_codes`
+        where binary `contact` = #{contact}
+          and binary `code` = #{code}
+          and binary `salt` = #{salt}
+        limit 1
+    </select>
+    <select id="selectRecoverContactCodeByContactCodeSalt"
+            resultType="com.yeo.matzip.entities.RecoverContactCodeEntity">
+        select `index`        as `index`,
+               `contact`      as `contact`,
+               `code`         as `code`,
+               `salt`         as `salt`,
+               `created_at`   as `createdAt`,
+               `expires_at`   as `expiresAt`,
+               `expired_flag` as `isExpired`
+        from `matzip`.`recover_contact_codes`
+        where binary `contact` = #{contact}
+          and binary `code` = #{code}
+          and binary `salt` = #{salt}
+        limit 1
+    </select>
+    <select id="selectRegisterEmailCodeByEmailCodeSalt"
+            parameterType="com.yeo.matzip.entities.RegisterEmailCodeEntity"
+            resultType="com.yeo.matzip.entities.RegisterEmailCodeEntity">
+        select `index`        as `index`,
+               `email`        as `email`,
+               `code`         as `code`,
+               `salt`         as `salt`,
+               `created_at`   as `createdAt`,
+               `expires_at`   as `expiresAt`,
+               `expired_flag` as `isExpired`
+        from `matzip`.`register_email_codes`
+        where binary `email` = #{email}
+          and binary `code` = #{code}
+          and binary `salt` = #{salt}
+        limit 1
+    </select>
+
+    <update id="updateRegisterContactCode"
+            parameterType="com.yeo.matzip.entities.RegisterContactCodeEntity">
+        update `matzip`.`register_contact_codes`
+        set `contact`      = #{contact},
+            `code`         = #{code},
+            `salt`         = #{salt},
+            `created_at`   = #{createdAt},
+            `expires_at`   = #{expiresAt},
+            `expired_flag` = #{isExpired}
+        where `index` = #{index}
+        limit 1
+    </update>
+    <update id="updateRecoverContactCode"
+            parameterType="com.yeo.matzip.entities.RecoverContactCodeEntity">
+        update `matzip`.`recover_contact_codes`
+        set `contact`      = #{contact},
+            `code`         = #{code},
+            `salt`         = #{salt},
+            `created_at`   = #{createdAt},
+            `expires_at`   = #{expiresAt},
+            `expired_flag` = #{isExpired}
+        where `index` = #{index}
+        limit 1
+    </update>
+    <update id="updateRegisterEmailCode"
+            parameterType="com.yeo.matzip.entities.RegisterEmailCodeEntity">
+        update `matzip`.`register_email_codes`
+        set `email`        = #{email},
+            `code`         = #{code},
+            `salt`         = #{salt},
+            `created_at`   = #{createdAt},
+            `expires_at`   = #{expiresAt},
+            `expired_flag` = #{isExpired}
+        where `index` = #{index}
+        limit 1
+    </update>
+    <update id="updateUser"
+            parameterType="com.yeo.matzip.entities.UserEntity">
+        update `matzip`.`users`
+        set `password`      = #{password},
+            `nickname`      = #{nickname},
+            `contact`       = #{contact},
+            `status`        = #{status},
+            `admin_flag`    = #{isAdmin},
+            `registered_at` = #{registeredAt}
+        where `email` = #{email}
+        limit 1
+
+    </update>
+
+    <delete id="deleteRecoverEmailCode"
+            parameterType="com.yeo.matzip.entities.RecoverEmailCodeEntity">
+        DELETE
+        FROM `matzip`.`recover_email_codes`
+        WHERE `index` = #{index}
+        LIMIT 1
+    </delete>
+
+    <insert id="insertRecoverEmailCode"
+            parameterType="com.yeo.matzip.entities.RecoverEmailCodeEntity">
+        INSERT INTO `matzip`.`recover_email_codes` (`email`, `code`, `salt`, `created_at`, `expires_at`, `expired_flag`)
+            VALUE (#{email},
+                   #{code},
+                   #{salt},
+                   IFNULL(#{createdAt}, DEFAULT(`created_at`)),
+                   #{expiresAt},
+                   #{isExpired})
+    </insert>
+
+    <select id="selectRecoverEmailCodeByEmailCodeSalt"
+            parameterType="com.yeo.matzip.entities.RecoverEmailCodeEntity"
+            resultType="com.yeo.matzip.entities.RecoverEmailCodeEntity">
+        SELECT `index`        AS `index`,
+               `email`        AS `email`,
+               `code`         AS `code`,
+               `salt`         AS `salt`,
+               `created_at`   AS `createdAt`,
+               `expires_at`   AS `expiresAt`,
+               `expired_flag` AS `isExpired`
+        FROM `matzip`.`recover_email_codes`
+        WHERE BINARY `email` = #{email}
+          AND BINARY `code` = #{code}
+          AND BINARY `salt` = #{salt}
+        LIMIT 1
+    </select>
+
+    <update id="updateRecoverEmailCode"
+            parameterType="com.yeo.matzip.entities.RecoverEmailCodeEntity">
+        UPDATE `matzip`.`recover_email_codes`
+        SET `email`        = #{email},
+            `code`         = #{code},
+            `salt`         = #{salt},
+            `created_at`   = #{createdAt},
+            `expires_at`   = #{expiresAt},
+            `expired_flag` = #{isExpired}
+        WHERE `index` = #{index}
+        LIMIT 1
+    </update>
+
+</mapper>
